@@ -7,7 +7,9 @@
 }
 else
 {
-    <h1>@stop.StopDescription</h1>
+    <div class="jumbotron">
+        <h1 class="display-4">@stop.StopDescription</h1>
+    </div>
     @if (stop.Routes.Route.Count == 0)
     {
         <p><em>No service</em></p>
@@ -19,11 +21,20 @@ else
 
             @if (route.Trips.Count > 0)
             {
-                <h3>@route.RouteNo @route.Direction to @route.RouteHeading</h3>
-                @foreach (var trip in route.Trips)
-                {
-                    <h5>@GetTripMessage(trip)</h5>
-                }
+                <div class="card" style="width: 66%;">
+                    <div class="card-header">
+                        @route.RouteNo @route.Direction to @route.RouteHeading
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var trip in route.Trips)
+                            {
+                                <li class="list-group-item">@GetTripMessage(trip)</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
             }
         }
     }
@@ -84,16 +95,20 @@ else
 
     public string GetBusType(Trip trip)
     {
-        switch(trip.BusType[0])
+        if(trip.BusType.Length == 0)
+        {
+            return "Unknown";
+        }
+        switch (trip.BusType[0])
         {
             case '4':
-                return "Short boi";
+                return trip.BusType.Contains("DD") ? "Tall boi" : "Short boi";
             case '6':
                 return "Long boi";
             case 'D':
                 return "Tall boi";
             default:
-                return "Unknown";
+                return trip.BusType.Contains("DD") ? "Tall boi" : "Unknown";
         }
     }
 }
