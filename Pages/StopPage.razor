@@ -96,12 +96,25 @@ else
 
     public string GetTripMessage(Trip trip, VehicleType vehicleType)
     {
+        var arrivalTime = GetArrivalTime(trip);
         // TODO: refactor this for readability
         return (vehicleType == VehicleType.Train ? "Train" : GetBusType(trip)) + " " +
-            trip.AdjustedScheduleTime == "0" ? 
-            "arriving now" : 
-            (trip.AdjustedScheduleTime + " minute" + (trip.AdjustedScheduleTime == "1" ? "" : "s") + " away"
-            + (trip.AdjustmentAge != "-1" ? (" by GPS, moving at " + trip.GPSSpeed + " kph") : ""));
+            ((arrivalTime <= 0) ?
+            "arriving now" :
+            (arrivalTime.ToString() + " minute" + (arrivalTime == 1 ? "" : "s") + " away"
+            + ((trip.AdjustmentAge != "-1" && trip.GPSSpeed != "") ? (" by GPS, moving at " + trip.GPSSpeed + " kph") : "")));
+    }
+
+    public int GetArrivalTime(Trip trip)
+    {
+        var adjusted = Int32.Parse(trip.AdjustedScheduleTime);
+        var age = Convert.ToDecimal(trip.AdjustmentAge, CultureInfo.CurrentCulture);
+        if(age < 0)
+        {
+            return adjusted;
+        }
+        var arrivalTime = adjusted - age;
+        return (int)Math.Round(arrivalTime);
     }
 
     public string GetBusType(Trip trip)
