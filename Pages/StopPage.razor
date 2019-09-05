@@ -1,0 +1,52 @@
+﻿@page "/stops/{stopNo}"
+@inject HttpClient Http
+
+@if (stop == null)
+{
+    <p><em>Loading stop data...</em></p>
+}
+else
+{
+    <h1>@stop.StopDescription</h1>
+    @if (stop.Routes.Route.Length == 0)
+    {
+        <p><em>No service</em></p>
+    } else 
+    {
+        @foreach (var route in stop.Routes.Route)
+        {
+            <h2>@route.RouteNo @route.Direction to @route.RouteHeading</h2>
+        }
+    }
+
+}
+
+@code {
+    [Parameter]
+    public string stopNo { get; set; }
+
+    public BusStop stop;
+
+    protected override async Task OnInitializedAsync()
+    {
+        stop = (await Http.GetJsonAsync<Wrapper>("sample-data/stop-info.json")).GetRouteSummaryForStopResult;
+    }
+
+    public class Wrapper
+    {
+        public BusStop GetRouteSummaryForStopResult { get; set; }
+    }
+
+    public class BusStop
+    {
+        public string StopNo { get; set; }
+        public string StopDescription { get; set; }
+        public string Error { get; set; }
+        public RouteWrapper Routes { get; set; }
+    }
+
+    public class RouteWrapper
+    {
+        public Route[] Route { get; set; }
+    }
+}

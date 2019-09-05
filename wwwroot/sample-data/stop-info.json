@@ -1,0 +1,35 @@
+﻿{
+  "GetRouteSummaryForStopResult": {
+    "StopNo": "6783",
+    "StopDescription": "KING EDWARD \/ TEMPLETON ( A )",
+    "Error": "",
+    "Routes": {
+      "Route": [
+        {
+          "RouteNo": "85",
+          "DirectionID": 0,
+          "Direction": "Eastbound",
+          "RouteHeading": "Lees"
+        },
+        {
+          "RouteNo": "95",
+          "DirectionID": 0,
+          "Direction": "Eastbound",
+          "RouteHeading": "Orléans"
+        },
+        {
+          "RouteNo": "97",
+          "DirectionID": 0,
+          "Direction": "Eastbound",
+          "RouteHeading": "N Airport \/ Aéroport"
+        },
+        {
+          "RouteNo": "98",
+          "DirectionID": 0,
+          "Direction": "Southbound",
+          "RouteHeading": "Hawthorne"
+        }
+      ]
+    }
+  }
+}
