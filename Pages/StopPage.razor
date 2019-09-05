@@ -1,4 +1,4 @@
-﻿@page "/stops/{stopNo:int}"
+﻿@page "/stops/{stopNumber:int}"
 @inject HttpClient Http
 
 @if (stop == null)
@@ -23,7 +23,7 @@ else
 
 @code {
     [Parameter]
-    public int stopNo { get; set; }
+    public int stopNumber { get; set; }
 
     public BusStop stop;
 
@@ -40,7 +40,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         var parameters = new Dictionary<string, string>();
-        parameters.Add(stopNumberParameter, stopNo.ToString());
+        parameters.Add(stopNumberParameter, stopNumber.ToString());
         try
         {
             stop = (await SendRequest<RouteSummaryForStopWrapper>("GetRouteSummaryForStop", parameters)).GetRouteSummaryForStopResult;
