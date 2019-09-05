@@ -8,7 +8,7 @@
 else
 {
     <div class="jumbotron">
-        <h1 class="display-4">@stop.StopDescription</h1>
+        <h1 class="display-4">@StringManipulation.FormatStopName(stop.StopDescription)</h1>
     </div>
     @if (stop.Routes.Route.Count == 0)
     {
@@ -29,7 +29,7 @@ else
                         <ul class="list-group">
                             @foreach (var trip in route.Trips)
                             {
-                                <li class="list-group-item">@GetTripMessage(trip)</li>
+                                <li class="list-group-item">@GetTripMessage(trip, (route.RouteNo == "1" || route.RouteNo == "2") ? VehicleType.Train : VehicleType.Bus)</li>
                             }
                         </ul>
                     </div>
@@ -75,6 +75,7 @@ else
         }
     }
 
+    // TODO: move this to utility class
     public async Task<T> SendRequest<T>(string endpoint, IDictionary<string, string> parameters)
     {
         var requestUri = String.Format("{0}/{1}/{2}?appID={3}&apiKey={4}&format=JSON", corsOverride, apiEndpoint, endpoint, appId, apiKey);
@@ -93,9 +94,14 @@ else
         }
     }
 
-    public string GetTripMessage(Trip trip)
+    public string GetTripMessage(Trip trip, VehicleType vehicleType)
     {
-        return GetBusType(trip) + " " + trip.AdjustedScheduleTime + " minutes away" + (trip.AdjustmentAge != "-1" ? (" by GPS, moving at " + trip.GPSSpeed + " kph") : "");
+        // TODO: refactor this for readability
+        return (vehicleType == VehicleType.Train ? "Train" : GetBusType(trip)) + " " +
+            trip.AdjustedScheduleTime == "0" ? 
+            "arriving now" : 
+            (trip.AdjustedScheduleTime + " minute" + (trip.AdjustedScheduleTime == "1" ? "" : "s") + " away"
+            + (trip.AdjustmentAge != "-1" ? (" by GPS, moving at " + trip.GPSSpeed + " kph") : ""));
     }
 
     public string GetBusType(Trip trip)
@@ -116,4 +122,6 @@ else
                 return trip.BusType.Contains("DD") ? tallBus : unknown;
         }
     }
+
+    public enum VehicleType { Train, Bus }
 }
