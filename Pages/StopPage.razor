@@ -1,9 +1,9 @@
-﻿@page "/stops/{stopNo}"
+﻿@page "/stops/{stopNo:int}"
 @inject HttpClient Http
 
 @if (stop == null)
 {
-    <p><em>Loading stop data...</em></p>
+    <p><em>@state</em></p>
 }
 else
 {
@@ -23,30 +23,48 @@ else
 
 @code {
     [Parameter]
-    public string stopNo { get; set; }
+    public int stopNo { get; set; }
 
     public BusStop stop;
 
+    public string state = "Loading data...";
+
+    // constants for http requests, will probably be abstracted into own class
+    private const string corsOverride = "https://cors-anywhere.herokuapp.com";
+    private const string apiEndpoint = "https://api.octranspo1.com/v1.3";
+    private const string appId = "da9f743d";
+    private const string apiKey = "b9f53f3f55876acad1d5c2b67fe41233";
+
+    private const string stopNumberParameter = "stopNo";
+
     protected override async Task OnInitializedAsync()
     {
-        stop = (await Http.GetJsonAsync<Wrapper>("sample-data/stop-info.json")).GetRouteSummaryForStopResult;
+        var parameters = new Dictionary<string, string>();
+        parameters.Add(stopNumberParameter, stopNo.ToString());
+        try
+        {
+            stop = (await SendRequest<RouteSummaryForStopWrapper>("GetRouteSummaryForStop", parameters)).GetRouteSummaryForStopResult;
+        } catch (Exception e)
+        {
+            state = "Could not reach OC Transpo servers";
+        }
     }
 
-    public class Wrapper
+    public async Task<T> SendRequest<T>(string endpoint, IDictionary<string, string> parameters)
     {
-        public BusStop GetRouteSummaryForStopResult { get; set; }
-    }
-
-    public class BusStop
-    {
-        public string StopNo { get; set; }
-        public string StopDescription { get; set; }
-        public string Error { get; set; }
-        public RouteWrapper Routes { get; set; }
-    }
-
-    public class RouteWrapper
-    {
-        public Route[] Route { get; set; }
+        var requestUri = String.Format("{0}/{1}/{2}?appID={3}&apiKey={4}&format=JSON", corsOverride, apiEndpoint, endpoint, appId, apiKey);
+        foreach(var key in parameters.Keys)
+        {
+            requestUri += String.Format("&{0}={1}", key, parameters[key]);
+        }
+        var response = await Http.PostAsync(requestUri, new StringContent(""));
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+        }
+        else
+        {
+            throw new Exception();
+        }
     }
 }
