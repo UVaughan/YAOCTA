@@ -14,7 +14,7 @@ namespace YAOCTA.Model
         public string Direction { get; set; }
         public string RouteHeading { get; set; }
 
-        [JsonConverter(typeof(SingleOrArrayConverter<Trip>))]
+        [JsonConverter(typeof(TripConverter))]
         public List<Trip> Trips { get; set; }
     }
 }

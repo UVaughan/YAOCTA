@@ -21,7 +21,7 @@ else
 
             @if (route.Trips.Count > 0)
             {
-                <div class="card" style="width: 66%;">
+                <div class="card" style="width: 40%;">
                     <div class="card-header">
                         @route.RouteNo @route.Direction to @route.RouteHeading
                     </div>
@@ -53,6 +53,11 @@ else
     private const string apiEndpoint = "https://api.octranspo1.com/v1.3";
     private const string appId = "da9f743d";
     private const string apiKey = "b9f53f3f55876acad1d5c2b67fe41233";
+
+    private const string shortBus = "Single bus";
+    private const string longBus = "Stretch bus";
+    private const string tallBus = "Double decker";
+    private const string unknown = "Unknown";
 
     private const string stopNumberParameter = "stopNo";
 
@@ -97,18 +102,18 @@ else
     {
         if(trip.BusType.Length == 0)
         {
-            return "Unknown";
+            return unknown;
         }
         switch (trip.BusType[0])
         {
             case '4':
-                return trip.BusType.Contains("DD") ? "Tall boi" : "Short boi";
+                return trip.BusType.Contains("DD") ? tallBus : shortBus;
             case '6':
-                return "Long boi";
+                return longBus;
             case 'D':
-                return "Tall boi";
+                return tallBus;
             default:
-                return trip.BusType.Contains("DD") ? "Tall boi" : "Unknown";
+                return trip.BusType.Contains("DD") ? tallBus : unknown;
         }
     }
 }
