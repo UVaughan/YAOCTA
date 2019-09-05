@@ -11,14 +11,22 @@ else
     @if (stop.Routes.Route.Count == 0)
     {
         <p><em>No service</em></p>
-    } else 
+    }
+    else
     {
         @foreach (var route in stop.Routes.Route)
         {
-            <h3>@route.RouteNo @route.Direction to @route.RouteHeading</h3>
+
+            @if (route.Trips.Count > 0)
+            {
+                <h3>@route.RouteNo @route.Direction to @route.RouteHeading</h3>
+                @foreach (var trip in route.Trips)
+                {
+                    <h5>@GetTripMessage(trip)</h5>
+                }
+            }
         }
     }
-
 }
 
 @code {
@@ -43,8 +51,9 @@ else
         parameters.Add(stopNumberParameter, stopNumber.ToString());
         try
         {
-            stop = (await SendRequest<RouteSummaryForStopWrapper>("GetRouteSummaryForStop", parameters)).GetRouteSummaryForStopResult;
-        } catch (Exception e)
+            stop = (await SendRequest<RouteSummaryForStopWrapper>("GetNextTripsForStopAllRoutes", parameters)).GetRouteSummaryForStopResult;
+        }
+        catch (Exception e)
         {
             state = "Could not reach OC Transpo servers";
         }
@@ -53,7 +62,7 @@ else
     public async Task<T> SendRequest<T>(string endpoint, IDictionary<string, string> parameters)
     {
         var requestUri = String.Format("{0}/{1}/{2}?appID={3}&apiKey={4}&format=JSON", corsOverride, apiEndpoint, endpoint, appId, apiKey);
-        foreach(var key in parameters.Keys)
+        foreach (var key in parameters.Keys)
         {
             requestUri += String.Format("&{0}={1}", key, parameters[key]);
         }
@@ -65,6 +74,26 @@ else
         else
         {
             throw new Exception();
+        }
+    }
+
+    public string GetTripMessage(Trip trip)
+    {
+        return GetBusType(trip) + " " + trip.AdjustedScheduleTime + " minutes away" + (trip.AdjustmentAge != "-1" ? (" by GPS, moving at " + trip.GPSSpeed + " kph") : "");
+    }
+
+    public string GetBusType(Trip trip)
+    {
+        switch(trip.BusType[0])
+        {
+            case '4':
+                return "Short boi";
+            case '6':
+                return "Long boi";
+            case 'D':
+                return "Tall boi";
+            default:
+                return "Unknown";
         }
     }
 }
