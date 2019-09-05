@@ -1,2 +1,26 @@
 ﻿@page "/"
-<NavLink class="nav-link" href="stops/6783" Match="NavLinkMatch.Prefix">Click here to see stops</NavLink>
+@inject IUriHelper UriHelper
+<h1>Enter a stop number</h1>
+<EditForm Model="@exampleModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputNumber id="stopNumber" @bind-Value="@exampleModel.StopNumber" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    public class ExampleModel
+    {
+        [Required]
+        public int StopNumber { get; set; }
+    }
+
+    private void HandleValidSubmit()
+    {
+        UriHelper.NavigateTo("stops/" + exampleModel.StopNumber.ToString());
+    }
+
+    private ExampleModel exampleModel = new ExampleModel();
+}
