@@ -69,7 +69,6 @@ else
         try
         {
             stop = (await SendRequest<RouteSummaryForStopWrapper>("GetNextTripsForStopAllRoutes", parameters)).GetRouteSummaryForStopResult;
-            Console.WriteLine("Fetched");
         }
         catch (Exception e)
         {
