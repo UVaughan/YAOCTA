@@ -9,7 +9,9 @@ else
 {
     <div class="jumbotron">
         <h1 class="display-4">@StringManipulation.FormatStopName(stop.StopDescription)</h1>
+        <button type="button" class="btn btn-outline-dark" onclick="@(new Action(() => RefreshStop()))">Refresh</button>
     </div>
+
     @if (stop.Routes.Route.Count == 0)
     {
         <p><em>No service</em></p>
@@ -21,7 +23,7 @@ else
 
             @if (route.Trips.Count > 0)
             {
-                <div class="card" style="width: 40%;">
+                <div class="card">
                     <div class="card-header">
                         @route.RouteNo @route.Direction to @route.RouteHeading
                     </div>
@@ -39,7 +41,6 @@ else
         }
     }
 }
-
 @code {
     [Parameter]
     public int stopNumber { get; set; }
@@ -68,10 +69,26 @@ else
         try
         {
             stop = (await SendRequest<RouteSummaryForStopWrapper>("GetNextTripsForStopAllRoutes", parameters)).GetRouteSummaryForStopResult;
+            Console.WriteLine("Fetched");
         }
         catch (Exception e)
         {
             state = "Could not reach OC Transpo servers";
+        }
+    }
+
+    private async Task RefreshStop()
+    {
+        var parameters = new Dictionary<string, string>();
+        parameters.Add(stopNumberParameter, stopNumber.ToString());
+        try
+        {
+            stop = (await SendRequest<RouteSummaryForStopWrapper>("GetNextTripsForStopAllRoutes", parameters)).GetRouteSummaryForStopResult;
+            this.StateHasChanged();
+        }
+        catch (Exception e)
+        {
+
         }
     }
 
@@ -109,7 +126,7 @@ else
     {
         var adjusted = Int32.Parse(trip.AdjustedScheduleTime);
         var age = Convert.ToDecimal(trip.AdjustmentAge, CultureInfo.CurrentCulture);
-        if(age < 0)
+        if (age < 0)
         {
             return adjusted;
         }
@@ -119,7 +136,7 @@ else
 
     public string GetBusType(Trip trip)
     {
-        if(trip.BusType.Length == 0)
+        if (trip.BusType.Length == 0)
         {
             return unknown;
         }
