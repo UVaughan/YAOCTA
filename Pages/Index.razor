@@ -32,8 +32,11 @@
     </table>
     @if (display.Count() < filtered.Keys.Count())
     {
-        <button type="button" class="btn btn-outline-dark" onclick="@((Action)(() => LoadMore()))">Load More</button>
+        <button type="button" class="btn btn-outline-dark" @onclick="LoadMore">Load More</button>
     }
+} else
+{
+    <p><em>No results found</em></p>
 }
 
 @code {
