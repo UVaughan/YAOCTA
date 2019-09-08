@@ -9,7 +9,7 @@ else
 {
     <div class="jumbotron">
         <h1 class="display-4">@StringManipulation.FormatStopName(stop.StopDescription)</h1>
-        <button type="button" class="btn btn-outline-dark" onclick="@(new Action(() => RefreshStop()))">Refresh</button>
+        <button type="button" class="btn btn-outline-dark" onclick="@((Action)(async () => await RefreshStop()))">Refresh</button>
     </div>
 
     @if (stop.Routes.Route.Count == 0)
