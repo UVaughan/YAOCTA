@@ -4,15 +4,14 @@
     <h1 class="display-4">Minimalist OC Transpo App</h1>
 </div>
 <div class="input-group mb-3">
-    <input type="search" 
-           class="form-control" 
-           placeholder="Search..."
-           aria-label="Search" 
-           aria-describedby="basic-addon1" 
-           bind-value-oninput="@searchTerm"
-           onkeydown="@((Action<UIKeyboardEventArgs>) ((e) => SearchKeyDown(e)))" />
+    <input type="search"
+           class="form-control"
+           placeholder="Search by name or stop number..."
+           aria-label="Search"
+           aria-describedby="basic-addon1"
+           @bind-value="searchTerm" />
 </div>
-@if (stops != null)
+@if (filtered != null)
 {
     <table class="table table-striped table-hover">
         <thead>
@@ -31,7 +30,7 @@
             }
         </tbody>
     </table>
-    @if(display.Count() < stops.Keys.Count())
+    @if (display.Count() < filtered.Keys.Count())
     {
         <button type="button" class="btn btn-outline-dark" onclick="@((Action)(() => LoadMore()))">Load More</button>
     }
@@ -40,11 +39,29 @@
 @code {
     public const int incrementNumber = 10;
 
+    private int currentSize = 0;
+
     public IDictionary<int, string> stops;
 
-    public IEnumerable<int> display;
+    public IDictionary<int, string> filtered => stops.Where(pair =>
+        {
+            if (pair.Value.ToLowerInvariant().Contains(searchTerm.ToLowerInvariant()))
+            {
+                return true;
+            }
+            if (Int32.TryParse(searchTerm, out var searchKey))
+            {
+                if (pair.Key.Equals(searchKey))
+                {
+                    return true;
+                }
+            };
+            return false;
+        }).ToDictionary(x => x.Key, x => x.Value);
 
-    private string searchTerm { get; set; }
+    public IEnumerable<int> display => filtered.Keys.Take(currentSize);
+
+    private string searchTerm { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,22 +102,13 @@
                 }
             }
             stops = dict;
-            display = dict.Keys.Take(incrementNumber);
-        }
-    }
-
-    private void SearchKeyDown(UIKeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            Console.WriteLine("FUUUUUUCK");
-            this.StateHasChanged();
+            currentSize += incrementNumber;
         }
     }
 
     private void LoadMore()
     {
         var incAmount = ((display.Count() + incrementNumber) > stops.Keys.Count()) ? (stops.Keys.Count() - display.Count()) : incrementNumber;
-        display = stops.Keys.Take(display.Count() + incAmount);
+        currentSize += incAmount;
     }
 }
