@@ -10,9 +10,11 @@ namespace YAOCTA.Utility
     {
         public static string FormatStopName(string stopName)
         {
-            var capitalized = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(stopName.ToLower());
+            var trimmed = stopName.Trim();
+            var capitalized = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(trimmed.ToLower());
             var replacedSlashes = capitalized.Replace("/", "and");
-            return replacedSlashes;
+            var removedQuotes = replacedSlashes.Replace("\"", "");
+            return removedQuotes;
         }
     }
 }

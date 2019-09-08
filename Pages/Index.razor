@@ -1,20 +1,79 @@
 ﻿@page "/"
 @inject IUriHelper UriHelper
-<h1>Enter a stop number</h1>
-<EditForm Model="@exampleModel" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <InputNumber id="stopNumber" @bind-Value="@exampleModel.StopNumber" />
-
-    <button type="submit">Submit</button>
-</EditForm>
+<div class="jumbotron">
+    <h1 class="display-4">Minimalist OC Transpo App</h1>
+</div>
+@if (stops != null)
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Stop #</th>
+                <th scope="col">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var key in stops.Keys)
+            {
+                <tr>
+                    <th scope="row">@key.ToString()</th>
+                    <td><NavLink href="@String.Format("stops/{0}", key.ToString())">@stops[key]</NavLink></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+
+    public IDictionary<int, string> stops;
+
     public class ExampleModel
     {
         [Required]
         public int StopNumber { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var dict = new Dictionary<int, string>();
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith("stops.txt"));
+
+        using (var stream = assembly.GetManifestResourceStream(resourceName))
+        using (var reader = new StreamReader(stream))
+        {
+            var result = reader.ReadToEnd();
+            var lines = result.Split(
+            new[] { "\r\n", "\r", "\n" },
+            StringSplitOptions.None
+            );
+            lines = lines.Skip(1).ToArray();
+            foreach (var line in lines)
+            {
+                if (line == "")
+                {
+                    continue;
+                }
+                var terms = line.Split(',');
+                try
+                {
+                    var key = Int32.Parse(terms[1]);
+                    var value = StringManipulation.FormatStopName(terms[2]);
+
+                    if (dict.ContainsKey(key))
+                    {
+                        continue;
+                    }
+                    dict.Add(key, value);
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Could not extract integer from " + terms[1]);
+                }
+            }
+            stops = dict;
+        }
     }
 
     private void HandleValidSubmit()
