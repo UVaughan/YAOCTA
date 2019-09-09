@@ -49,18 +49,21 @@ else
 
     public IEnumerable<int> filtered => stops.Where(pair =>
     {
-        if (pair.Value.ToLowerInvariant().Contains(searchTerm.ToLowerInvariant()))
+        // first check if stop number matches
+        if (Int32.TryParse(searchTerm, out var searchKey) && pair.Key.Equals(searchKey))
         {
             return true;
         }
-        if (Int32.TryParse(searchTerm, out var searchKey))
+
+        var terms = searchTerm.ToLowerInvariant().Split(' ');
+        foreach (var term in terms)
         {
-            if (pair.Key.Equals(searchKey))
+            if (!pair.Value.ToLowerInvariant().Contains(term))
             {
-                return true;
+                return false;
             }
-        };
-        return false;
+        }
+        return true;
     }).Select(x => x.Key);
 
     public IEnumerable<int> display => filtered.Take(currentSize);
