@@ -58,7 +58,7 @@ else
         var terms = searchTerm.Split(' ');
         foreach (var term in terms)
         {
-            if (!pair.Value.ToLower().RemoveDiacretics().Contains(term.ToLower().RemoveDiacretics()))
+            if (!pair.Value.ToLower().RemoveFrenchCharacters().Contains(term.ToLower().RemoveFrenchCharacters()))
             {
                 return false;
             }

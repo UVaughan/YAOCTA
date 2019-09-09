@@ -24,26 +24,14 @@ namespace YAOCTA.Utility
         }
 
         /// <summary>
-        /// Extension method to remove accents from string
-        /// Credit: https://stackoverflow.com/a/249126
+        /// Extension method to remove french accents from string
+        /// NOTE: Not suitable for other uses, only does lower case characters present in OC Transpo stop names
         /// </summary>
         /// <param name="input">String to modify</param>
         /// <returns>String with no accents</returns>
-        public static string RemoveDiacretics(this string input)
+        public static string RemoveFrenchCharacters(this string input)
         {
-            var normalizedString = input.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString)
-            {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+            return input.Replace('é', 'e').Replace('ô', 'o').Replace('è', 'e');
         }
     }
 }
