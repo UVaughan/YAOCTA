@@ -30,11 +30,12 @@
             }
         </tbody>
     </table>
-    @if (display.Count() < filtered.Keys.Count())
+    @if (display.Count() < filtered.Count())
     {
         <button type="button" class="btn btn-outline-dark" @onclick="LoadMore">Load More</button>
     }
-} else
+}
+else
 {
     <p><em>No results found</em></p>
 }
@@ -46,23 +47,25 @@
 
     public IDictionary<int, string> stops;
 
-    public IDictionary<int, string> filtered => stops.Where(pair =>
+    public IEnumerable<int> filtered => stops.Where(pair =>
+    {
+        if (pair.Value.ToLowerInvariant().Contains(searchTerm.ToLowerInvariant()))
         {
-            if (pair.Value.ToLowerInvariant().Contains(searchTerm.ToLowerInvariant()))
+            return true;
+        }
+        if (Int32.TryParse(searchTerm, out var searchKey))
+        {
+            if (pair.Key.Equals(searchKey))
             {
                 return true;
             }
-            if (Int32.TryParse(searchTerm, out var searchKey))
-            {
-                if (pair.Key.Equals(searchKey))
-                {
-                    return true;
-                }
-            };
-            return false;
-        }).ToDictionary(x => x.Key, x => x.Value);
+        };
+        return false;
+    }).Select(x => x.Key);
 
-    public IEnumerable<int> display => filtered.Keys.Take(currentSize);
+    public IEnumerable<int> display => filtered.Take(currentSize);
+
+    public IDictionary<int, int> importance = new Dictionary<int, int>();
 
     private string searchTerm { get; set; } = "";
 
@@ -97,6 +100,7 @@
                     {
                         continue;
                     }
+
                     dict.Add(key, value);
                 }
                 catch (FormatException e)
