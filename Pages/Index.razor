@@ -55,10 +55,10 @@ else
             return true;
         }
 
-        var terms = searchTerm.ToLowerInvariant().Split(' ');
+        var terms = searchTerm.Split(' ');
         foreach (var term in terms)
         {
-            if (!pair.Value.ToLowerInvariant().Contains(term))
+            if (!pair.Value.ToLower().RemoveDiacretics().Contains(term.ToLower().RemoveDiacretics()))
             {
                 return false;
             }
